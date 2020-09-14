@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-sms-retriever" version="0.0.1"
+    xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>sms-retriever</name>
+    <js-module name="SMSRetriever" src="www/SMSRetriever.js">
+        <clobbers target="cordova.plugins.SMSRetriever" />
+    </js-module>
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="SMSRetriever">
+                <param name="android-package" value="com.vishnu.cordova.sms.retriever.SMSRetriever" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <source-file src="src/android/SMSRetriever.java" target-dir="src/com/vishnu/cordova/sms/retriever" />
+        <source-file src="src/android/SMSBroadcastReceiver.java" target-dir="src/com/vishnu/cordova/sms/retriever" />
+        <framework src="src/android/SMSRetriever.gradle" custom="true" type="gradleReference"/>
+        <config-file target="config.xml" parent="/*">
+			<platform name="android">
+				<preference name="AndroidXEnabled" value="true" />
+			</platform>
+		</config-file>
+    </platform>
+</plugin>
