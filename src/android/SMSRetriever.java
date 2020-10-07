@@ -3,22 +3,21 @@ package com.vishnu.cordova.sms.retriever;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.os.Build;
-import android.telecom.Call;
+import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.auth.api.credentials.Credentials;
 import com.google.android.gms.auth.api.credentials.HintRequest;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.Task;
 
 import org.apache.cordova.CordovaInterface;
@@ -27,20 +26,15 @@ import org.apache.cordova.CallbackContext;
 
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
-import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.function.Function;
+
 
 import static android.app.Activity.RESULT_OK;
 
-/**
- * This class echoes a string called from JavaScript.
- */
+
 public class SMSRetriever extends CordovaPlugin {
     private static  String TAG = "SMSRetriever";
     private Activity mActivity;
@@ -48,17 +42,18 @@ public class SMSRetriever extends CordovaPlugin {
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private static final int REQ_USER_CONSENT = 200;
     private CallbackContext mCallbackContext;
-
+    private CordovaPlugin mPlugin;
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
         mActivity = cordova.getActivity();
-        registerBroadcastReceiver(this);
+        mPlugin = this;
     }
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         mCallbackContext = callbackContext;
+        smsBroadcastReceiver = new SMSBroadcastReceiver();
         return this.validateAction(action,callbackContext);
     }
 
@@ -69,6 +64,28 @@ public class SMSRetriever extends CordovaPlugin {
                 @Override
                 public void run() {
                     getHint();
+                }
+            });
+            return  true;
+        }
+
+        if(action.equals("listen")){
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    // register broadcast receiver
+                    registerBroadcastReceiver(mPlugin);
+                }
+            });
+            return  true;
+        }
+
+        if(action.equals("remove")){
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    cordova.getContext().unregisterReceiver(smsBroadcastReceiver);
+                    mCallbackContext.success(1);
                 }
             });
             return  true;
@@ -131,25 +148,34 @@ public class SMSRetriever extends CordovaPlugin {
     @Override
     public void onStop() {
         super.onStop();
-        cordova.getContext().unregisterReceiver(smsBroadcastReceiver);
     }
 
     private void registerBroadcastReceiver(CordovaPlugin plugin) {
-        smsBroadcastReceiver = new SMSBroadcastReceiver();
-        smsBroadcastReceiver.smsBroadcastReceiverListener =
-                new SMSBroadcastReceiver.SmsBroadcastReceiverListener() {
-                    @Override
-                    public void onSuccess(Intent intent) {
-                        cordova.setActivityResultCallback(plugin);
-                        mActivity.startActivityForResult(intent, REQ_USER_CONSENT);
-                    }
-                    @Override
-                    public void onFailure() {
-                        mCallbackContext.error("TIMEOUT");
-                    }
-                };
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
         cordova.getContext().registerReceiver(smsBroadcastReceiver, intentFilter);
+        mCallbackContext.success(1);
+    }
+
+
+    public final class SMSBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == SmsRetriever.SMS_RETRIEVED_ACTION) {
+                Bundle extras = intent.getExtras();
+                Status smsRetrieverStatus = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
+                switch (smsRetrieverStatus.getStatusCode()) {
+                    case CommonStatusCodes.SUCCESS:
+                        Intent messageIntent = extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
+                        cordova.setActivityResultCallback(mPlugin);
+                        mActivity.startActivityForResult(messageIntent, REQ_USER_CONSENT);
+                        break;
+                    case CommonStatusCodes.TIMEOUT:
+                        mCallbackContext.error("TIMEOUT");;
+                        break;
+                }
+            }
+        }
+
     }
 
 }

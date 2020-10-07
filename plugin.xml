@@ -14,12 +14,11 @@
             </feature>
         </config-file>
         <source-file src="src/android/SMSRetriever.java" target-dir="src/com/vishnu/cordova/sms/retriever" />
-        <source-file src="src/android/SMSBroadcastReceiver.java" target-dir="src/com/vishnu/cordova/sms/retriever" />
         <framework src="src/android/SMSRetriever.gradle" custom="true" type="gradleReference"/>
         <config-file target="config.xml" parent="/*">
-			<platform name="android">
-				<preference name="AndroidXEnabled" value="true" />
-			</platform>
-		</config-file>
+            <platform name="android">
+                <preference name="AndroidXEnabled" value="true" />
+            </platform>
+        </config-file>
     </platform>
 </plugin>

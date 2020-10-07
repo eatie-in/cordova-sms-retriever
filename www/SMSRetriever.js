@@ -2,14 +2,24 @@ var exec = require("cordova/exec");
 const PLUGIN_NAME = "SMSRetriever";
 
 module.exports = {
-  getHint:function(){
+  getHint: function () {
     return new Promise(function (resolve, reject) {
-        exec(resolve, reject, PLUGIN_NAME, "getHint", []);
-      });
+      exec(resolve, reject, PLUGIN_NAME, "getHint", []);
+    });
   },
-  getMessage:function(){
+  getMessage: function () {
     return new Promise(function (resolve, reject) {
-        exec(resolve, reject, PLUGIN_NAME, "getMessage", []);
-      });
-  }
+      exec(resolve, reject, PLUGIN_NAME, "getMessage", []);
+    });
+  },
+  listen: function () {
+    return new Promise(function (resolve, reject) {
+      exec(resolve, reject, PLUGIN_NAME, "listen", []);
+    });
+  },
+  remove: function () {
+    return new Promise(function (resolve, reject) {
+      exec(resolve, reject, PLUGIN_NAME, "remove", []);
+    });
+  },
 };
