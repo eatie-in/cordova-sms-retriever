@@ -46,6 +46,7 @@ public class SMSRetriever extends CordovaPlugin {
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
+        smsBroadcastReceiver = new SMSBroadcastReceiver();
         mActivity = cordova.getActivity();
         mPlugin = this;
     }
@@ -53,12 +54,10 @@ public class SMSRetriever extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         mCallbackContext = callbackContext;
-        smsBroadcastReceiver = new SMSBroadcastReceiver();
         return this.validateAction(action,callbackContext);
     }
 
     private Boolean validateAction(String action,CallbackContext callbackContext){
-
         if(action.equals("getHint")){
             cordova.getThreadPool().execute(new Runnable() {
                 @Override
@@ -68,23 +67,24 @@ public class SMSRetriever extends CordovaPlugin {
             });
             return  true;
         }
-
         if(action.equals("listen")){
             cordova.getThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
                     // register broadcast receiver
-                    registerBroadcastReceiver(mPlugin);
+                    registerBroadcastReceiver();
                 }
             });
             return  true;
         }
-
         if(action.equals("remove")){
             cordova.getThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
-                    cordova.getContext().unregisterReceiver(smsBroadcastReceiver);
+//                    if(smsBroadcastReceiver != null){
+//                        LOG.v(TAG,"receiver not null");
+                        mActivity.unregisterReceiver(smsBroadcastReceiver);
+//                    }
                     mCallbackContext.success(1);
                 }
             });
@@ -150,9 +150,9 @@ public class SMSRetriever extends CordovaPlugin {
         super.onStop();
     }
 
-    private void registerBroadcastReceiver(CordovaPlugin plugin) {
+    private void registerBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-        cordova.getContext().registerReceiver(smsBroadcastReceiver, intentFilter);
+        mActivity.registerReceiver(smsBroadcastReceiver,intentFilter);
         mCallbackContext.success(1);
     }
 
