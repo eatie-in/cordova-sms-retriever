@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-sms-retriever" version="0.0.1"
+<plugin id="cordova-plugin-sms-retriever" version="0.0.2"
     xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <name>sms-retriever</name>
@@ -14,11 +14,19 @@
             </feature>
         </config-file>
         <source-file src="src/android/SMSRetriever.java" target-dir="src/com/vishnu/cordova/sms/retriever" />
+        <source-file src="src/android/SMSBroadcastReceiver.java" target-dir="src/com/vishnu/cordova/sms/retriever" />
         <framework src="src/android/SMSRetriever.gradle" custom="true" type="gradleReference"/>
         <config-file target="config.xml" parent="/*">
             <platform name="android">
                 <preference name="AndroidXEnabled" value="true" />
             </platform>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <receiver android:name="com.vishnu.cordova.sms.retriever.SMSBroadcastReceiver" android:exported="true" android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
+                <intent-filter>
+                    <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
+                </intent-filter>
+            </receiver>
         </config-file>
     </platform>
 </plugin>

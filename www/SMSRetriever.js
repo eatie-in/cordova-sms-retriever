@@ -7,19 +7,12 @@ module.exports = {
       exec(resolve, reject, PLUGIN_NAME, "getHint", []);
     });
   },
-  getMessage: function () {
-    return new Promise(function (resolve, reject) {
-      exec(resolve, reject, PLUGIN_NAME, "getMessage", []);
-    });
+  getSMS(options,successCallback, errorCallback) {
+    exec(successCallback, errorCallback, PLUGIN_NAME, "getSMS", [options]);
   },
-  listen: function () {
+  getAppHash() {
     return new Promise(function (resolve, reject) {
-      exec(resolve, reject, PLUGIN_NAME, "listen", []);
-    });
-  },
-  remove: function () {
-    return new Promise(function (resolve, reject) {
-      exec(resolve, reject, PLUGIN_NAME, "remove", []);
+      exec(resolve, reject, PLUGIN_NAME, "getAppHash", []);
     });
   },
 };
