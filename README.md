@@ -1,6 +1,9 @@
+## Description
+
+This Plugin users android sms retriever api and conset api to retrieve sms
 ## Installation
 
-    $ cordova plugin add
+    $ cordova plugin add https://github.com/eatie-in/cordova-sms-retriever.git
 
 ## Methods
 
