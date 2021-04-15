@@ -53,8 +53,6 @@ import static android.app.Activity.RESULT_OK;
 public class SMSRetriever extends CordovaPlugin {
     private static String TAG = "SMSRetriever";
     private static final int CREDENTIAL_PICKER_REQUEST = 01;
-    private SMSBroadcastReceiver smsBroadcastReceiver;
-    private static final int REQ_USER_CONSENT = 200;
     private static CallbackContext mCallbackContext;
     private Context mApplicationContext;
     public static CordovaInterface mCordova;
