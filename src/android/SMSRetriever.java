@@ -123,12 +123,16 @@ public class SMSRetriever extends CordovaPlugin {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CREDENTIAL_PICKER_REQUEST && resultCode == RESULT_OK) {
             Credential credential = data.getParcelableExtra(Credential.EXTRA_KEY);
-            mCallbackContext.success(credential.getId());
+            if(mCallbackContext !=null){
+             mCallbackContext.success(credential.getId());
+            }
             return;
         }
         if (requestCode == SMSBroadcastReceiver.SMS_CONSENT_REQUEST && ((resultCode == RESULT_OK) && (data != null))) {
             String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
-            mCallbackContext.success(message);
+            if(mCallbackContext != null){
+              mCallbackContext.success(message);
+            }
             return;
         }
         PluginResult result = new PluginResult(PluginResult.Status.ERROR);
